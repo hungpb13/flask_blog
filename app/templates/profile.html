@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block content %} {% for message in
+get_flashed_messages() %}
+<div class="alert alert-primary alert-dismissible fade show" role="alert">
+  {{ message }}
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+{% endfor %}
+<h1>Welcome, {{ current_user.name|title }}!</h1>
+<div class="shadow-sm p-3 mb-3 bg-body-tertiary rounded">
+  <h3>Your Profile</h3>
+  <form action="{{ url_for('main.profile') }}" method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.name.label(class="form-label", for="name")}} {{ form.name(
+      class="form-control", id="name", value=current_user.name) }}
+    </div>
+    <div class="mb-3">
+      {{ form.email.label(class="form-label", for="email")}} {{ form.email(
+      class="form-control", id="email", value=current_user.email) }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+</div>
+{% endblock %}
