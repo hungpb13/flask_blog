@@ -20,10 +20,6 @@ get_flashed_messages() %}
       class="form-control", id="title", value=post.title) }}
     </div>
     <div class="mb-3">
-      {{ form.author.label(class="form-label", for="author")}} {{ form.author(
-      class="form-control", id="author", value=post.author) }}
-    </div>
-    <div class="mb-3">
       {{ form.content.label(class="form-label", for="content")}} {{
       form.content(class="form-control", id="content", rows="5") }}
     </div>

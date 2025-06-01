@@ -181,9 +181,10 @@ def add_post():
         if form.validate_on_submit():
             title = form.title.data
             content = form.content.data
-            author = form.author.data
+            
+            user_id = current_user.id
 
-            post = Post(title=title, content=content, author=author)
+            post = Post(title=title, content=content, user_id=user_id)
 
             db.session.add(post)
             db.session.commit()
@@ -211,7 +212,6 @@ def edit_post(id):
 
     if request.method == "POST":
         post.title = request.form['title']
-        post.author = request.form['author']
         post.content = request.form['content']
         try:
             db.session.commit()

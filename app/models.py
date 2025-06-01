@@ -10,6 +10,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     password = db.Column(db.String(128), nullable=False)
+    # List of Posts - One to Many
+    posts = db.relationship('Post', backref='author', lazy=True)
 
     # @property
     # def password(self):
@@ -30,5 +32,6 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    author = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
+    # Create a Foreign Key - Many to One
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
