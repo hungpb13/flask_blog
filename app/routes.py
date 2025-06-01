@@ -21,6 +21,7 @@ def profile():
     form = UserForm()
     id = current_user.id
     user = User.query.get_or_404(id)
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.created_at).all()
 
     if request.method == "POST":
         user.name = request.form['name']
@@ -33,7 +34,7 @@ def profile():
         finally:
             return redirect(url_for("main.profile"))
     else:
-        return render_template("profile.html", form=form)
+        return render_template("profile.html", form=form, posts=posts)
 
 
 # List Users
@@ -191,7 +192,7 @@ def add_post():
 
             flash("Add new post successfully!")
             
-            return redirect(url_for("main.index"))
+            return redirect(url_for("main.profile"))
 
     return render_template("add_post.html", form=form)
 
@@ -204,40 +205,51 @@ def get_post(id):
 
 
 # Edit Post
-@main.route("/post/<int:id>/edit", methods=['GET', 'POST'])
+@main.route("/posts/<int:id>/edit", methods=['GET', 'POST'])
 @login_required
 def edit_post(id):
     form = PostFrom()
     post = Post.query.get_or_404(id)
 
-    if request.method == "POST":
-        post.title = request.form['title']
-        post.content = request.form['content']
-        try:
-            db.session.commit()
-            flash("Update post successfully!")
-            return redirect(url_for("main.get_post", id=post.id))
-        except:
-            flash("Update post failed!")
+    user_id = current_user.id
+
+    if user_id == post.user_id:
+        if request.method == "POST":
+            post.title = request.form['title']
+            post.content = request.form['content']
+            try:
+                db.session.commit()
+                flash("Update post successfully!")
+                return redirect(url_for("main.profile"))
+            except:
+                flash("Update post failed!")
+                return render_template("edit_post.html", form=form, post=post)
+        else:
+            form.content.data = post.content
             return render_template("edit_post.html", form=form, post=post)
     else:
-        form.content.data = post.content
-        return render_template("edit_post.html", form=form, post=post)
+        flash("You aren't authorized to edit that post!")
+        return redirect(url_for("main.index"))
 
 
 # Delete Post
-@main.route("/post/<int:id>/delete")
+@main.route("/posts/<int:id>/delete")
 @login_required
 def delete_post(id):
     post = Post.query.get_or_404(id)
+    user_id = current_user.id
 
-    try:
-        db.session.delete(post)
-        db.session.commit()
-        flash("Delete post successfully!")
-    except:
-        flash("Delete post failed!")
-    finally:
+    if user_id == post.user_id:
+        try:
+            db.session.delete(post)
+            db.session.commit()
+            flash("Delete post successfully!")
+        except:
+            flash("Delete post failed!")
+        finally:
+            return redirect(url_for("main.profile"))
+    else:
+        flash("You aren't authorized to delete that post!")
         return redirect(url_for("main.index"))
     
 
