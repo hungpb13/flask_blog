@@ -10,8 +10,9 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(100), nullable=False, unique=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     # List of Posts - One to Many
-    posts = db.relationship('Post', backref='author', lazy=True)
+    posts = db.relationship('Post', backref='author', lazy=True, cascade="all, delete-orphan")
 
     # @property
     # def password(self):
@@ -25,7 +26,7 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
     def __repr__(self):
-        return f"Name: {self.name} - Email: {self.email}"
+        return f"Name: {self.name} - Email: {self.email} - Admin: {self.is_admin}"
     
 # Create Post Model
 class Post(db.Model):

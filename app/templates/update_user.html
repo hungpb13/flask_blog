@@ -23,6 +23,15 @@ get_flashed_messages() %}
       {{ form.email.label(class="form-label", for="email")}} {{ form.email(
       class="form-control", id="email", value=user.email) }}
     </div>
+    <div class="mb-3">
+      {{ form.is_admin.label(class="form-label") }} {% for subfield in
+      form.is_admin %}
+      <div class="form-check">
+        {{ subfield(class="form-check-input") }} {{
+        subfield.label(class="form-check-label") }}
+      </div>
+      {% endfor %}
+    </div>
     {{ form.submit(class="btn btn-primary") }}
   </form>
 </div>

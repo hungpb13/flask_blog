@@ -24,6 +24,15 @@ get_flashed_messages() %}
       class="form-control", id="email") }}
     </div>
     <div class="mb-3">
+      {{ form.is_admin.label(class="form-label") }} {% for subfield in
+      form.is_admin %}
+      <div class="form-check">
+        {{ subfield(class="form-check-input") }} {{
+        subfield.label(class="form-check-label") }}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mb-3">
       {{ form.password.label(class="form-label", for="password")}} {{
       form.password( class="form-control", id="password") }}
     </div>

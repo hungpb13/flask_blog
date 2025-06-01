@@ -24,6 +24,7 @@ get_flashed_messages() %}
         <th scope="col">#</th>
         <th scope="col">Name</th>
         <th scope="col">Email</th>
+        <th scope="col">Type</th>
         <th scope="col">Created At</th>
         <th scope="col">Actions</th>
       </tr>
@@ -34,6 +35,7 @@ get_flashed_messages() %}
         <th scope="row">{{ user.id }}</th>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
+        <td>{{ 'Admin' if user.is_admin else 'User' }}</td>
         <td>{{ user.created_at.strftime('%H:%M:%S %d/%m/%Y') }}</td>
         <td>
           <a

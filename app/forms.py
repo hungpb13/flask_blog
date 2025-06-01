@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, RadioField
 from wtforms.validators import DataRequired, EqualTo
 from wtforms.widgets import TextArea
 
@@ -9,6 +9,12 @@ class UserForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired(), EqualTo("confirm_password", message="Passwords must match!")])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
+    is_admin = RadioField(
+        "User Type",
+        choices=[('True', 'Admin'), ('False', 'User')],
+        default='False',
+        coerce=str
+    )
     submit = SubmitField("Save")
 
 

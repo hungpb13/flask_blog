@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, url_for, redirect, flash
 from werkzeug.security import generate_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
+from functools import wraps
 from . import db
 from .models import User
 from .models import User, Post
@@ -13,6 +14,20 @@ main = Blueprint("main", __name__)
 def index():
     posts = Post.query.order_by(Post.created_at)
     return render_template("index.html", posts=posts)
+
+
+# Create admin_required Decorator
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash("Please log in first.")
+            return redirect(url_for('main.login'))  # Adjust to your login route
+        if not current_user.is_admin:
+            flash("Admin access required.")
+            return redirect(url_for('main.login'))  # Redirect to home or safe route
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 @main.route("/profile", methods=['GET', 'POST'])
@@ -40,6 +55,7 @@ def profile():
 # List Users
 @main.route("/users", methods=['GET'])
 @login_required
+@admin_required
 def users():
     users = User.query.order_by(User.created_at)
     return render_template("users.html", users=users)
@@ -48,6 +64,7 @@ def users():
 # Add New User
 @main.route("/users/add", methods=['GET', 'POST'])
 @login_required
+@admin_required
 def add_user():
     form = UserForm()
 
@@ -57,12 +74,13 @@ def add_user():
             name = form.name.data
             email = form.email.data
             password = form.password.data
+            is_admin = form.is_admin.data == "True"
 
             user = User.query.filter_by(email=email).first()
 
             if user is None:
                 password_hash = generate_password_hash(password)
-                user = User(name=name, email=email, password=password_hash)
+                user = User(name=name, email=email, is_admin=is_admin, password=password_hash)
 
                 db.session.add(user)
                 db.session.commit()
@@ -77,13 +95,16 @@ def add_user():
 # Update User
 @main.route("/users/<int:id>/update", methods=['GET', 'POST'])
 @login_required
+@admin_required
 def update_user(id):
     form = UserForm()
     user = User.query.get_or_404(id)
+    form.is_admin.data = str(user.is_admin)
 
     if request.method == "POST":
         user.name = request.form['name']
         user.email = request.form['email']
+        user.is_admin = request.form['is_admin'] == "True"
         try:
             db.session.commit()
             flash("Update user successfully!")
@@ -98,6 +119,7 @@ def update_user(id):
 # Delete User
 @main.route("/users/<int:id>/delete")
 @login_required
+@admin_required
 def delete_user(id):
     user = User.query.get_or_404(id)
 
@@ -151,7 +173,7 @@ def register():
 
             if user is None:
                 password_hash = generate_password_hash(password)
-                user = User(name=name, email=email, password=password_hash)
+                user = User(name=name, email=email, is_admin=False, password=password_hash)
 
                 db.session.add(user)
                 db.session.commit()
